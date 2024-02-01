@@ -70,7 +70,6 @@ def parse_args():
         )
     )
 
-
     parser.add_argument(
         '--out',
         type=str,
@@ -193,6 +192,12 @@ def create_file_dict(old_filter_path, new_filter_path):
     """
     Create a single dict containing info for each sample, listing VCF
     files for the sample and panel for both old and new filtering
+    Parameters
+    ----------
+    old_filter_path : str
+        name of folder(s) in DNAnexus for the old filter VCFs
+    new_filter_path : str
+        name of folder(s) in DNAnexus for the new filter VCFs
 
     Returns
     -------
@@ -322,7 +327,6 @@ def download_files(old_path, new_path, sample_info):
     sample_info : dict
         the dictionary holding file info for a single sample
     """
-
     # Make dirs for old and new paths if they don't exist
     Path(old_path).mkdir(parents=True, exist_ok=True)
     Path(new_path).mkdir(parents=True, exist_ok=True)
@@ -350,7 +354,7 @@ def download_files(old_path, new_path, sample_info):
 
 def concurrent_download(vcf_dict, workers, old_path, new_path):
     """
-    Concurrently copy original VCF files to testing project
+    Concurrently download VCF files to respective folders locally
 
     Parameters
     ----------
@@ -359,10 +363,10 @@ def concurrent_download(vcf_dict, workers, old_path, new_path):
         info as value
     workers : int
         number of workers
-    testing_project_id : str
-        project ID for the testing project
-    folder_name : str
-        name of folder in testing project to copy files to
+    old_path : str
+        full path to where the VCFs with old filtering will be downloaded to
+    new_path : str
+        full path to where the VCFs with new filtering will be downloaded to
     """
     with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
         concurrent_jobs = {
@@ -457,8 +461,9 @@ def get_variant_info(vcf_dict, old_path, new_path):
 
     Returns
     -------
-    _type_
-        _description_
+    vcf_dict : dict
+        dict with sample as key and nested dicts for each clinical indication
+        for that sample with added variants and counts
     Example:
     {
         'X123456': {
